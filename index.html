@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Kestrel Motors</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a dealer lot read like windshield stickers. Wide expanded display type, inventory grid as the centerpiece, yellow grease-pencil price tags as the one bold mark. */
+:root {
+  --bg: #f2f3f0;
+  --surface: #ffffff;
+  --ink: #15202b;
+  --muted: #5a6672;
+  --line: #d9dcd6;
+  --blue: #1d4e89;
+  --tag: #f5c518;
+  --tag-ink: #15202b;
+  --road: #1b2733;
+  --road-ink: #eef1f4;
+  --ok: #2f7d4f;
+  --display: "Archivo", "Arial Narrow", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --wrap: 1180px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11181f; --surface: #18222c; --ink: #e8ecef; --muted: #98a4af; --line: #2a3642;
+    --blue: #7fb0ea; --tag: #f5c518; --tag-ink: #15202b; --road: #0b1117; --road-ink: #e8ecef; --ok: #6cc590;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11181f; --surface: #18222c; --ink: #e8ecef; --muted: #98a4af; --line: #2a3642;
+  --blue: #7fb0ea; --tag: #f5c518; --tag-ink: #15202b; --road: #0b1117; --road-ink: #e8ecef; --ok: #6cc590;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--road); }
+.wrap { max-width: var(--wrap); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-stretch: 125%; line-height: 1.05; margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(1.7rem, 3.4vw, 2.5rem); font-weight: 850; letter-spacing: -0.01em; }
+.eyebrow { font: 600 0.75rem/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin: 0 0 12px; }
+.mono { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.02em; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--tag); outline-offset: 2px; }
+button, input, select { font: inherit; color: inherit; }
+
+/* Header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--road); color: var(--road-ink); }
+header.top .wrap { display: flex; align-items: center; gap: 24px; min-height: 64px; }
+.brand { font: 900 1.25rem/1 var(--display); font-stretch: 125%; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.brand svg { width: 28px; height: 28px; }
+nav.main { display: flex; gap: 22px; margin-left: auto; }
+nav.main a { text-decoration: none; font-weight: 500; font-size: 0.95rem; opacity: 0.85; }
+nav.main a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 6px; }
+.call { font-family: var(--mono); font-size: 0.85rem; padding: 8px 12px; border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; white-space: nowrap; }
+@media (max-width: 760px) { nav.main { display: none; } .call { margin-left: auto; } }
+
+/* Hero */
+.hero { background: var(--road); color: var(--road-ink); padding-block: 48px 0; overflow: hidden; }
+.hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: end; }
+.hero h1 { font-size: clamp(2.4rem, 6vw, 4.6rem); font-weight: 900; letter-spacing: -0.02em; }
+.hero h1 em { font-style: normal; color: var(--tag); }
+.hero p.lede { max-width: 46ch; color: #b9c3cc; font-size: 1.1rem; margin: 18px 0 28px; }
+.quick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 8px; background: #26333f; padding: 8px; border-radius: 6px; max-width: 620px; }
+.quick select { background: #1b2733; border: 1px solid #3a4856; border-radius: 4px; padding: 10px; color: #eef1f4; min-width: 0; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--tag); color: var(--tag-ink); border: 0; border-radius: 4px; padding: 11px 18px; font-weight: 600; cursor: pointer; text-decoration: none; }
+.btn:hover { filter: brightness(1.06); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.hero-car { position: relative; padding-bottom: 24px; }
+.hero-car svg.car { width: 100%; height: auto; display: block; }
+.lane { height: 6px; background: repeating-linear-gradient(90deg, var(--tag) 0 48px, transparent 48px 84px); opacity: 0.8; margin-top: 4px; }
+.sticker { position: absolute; top: 4%; right: 6%; background: var(--tag); color: var(--tag-ink); padding: 10px 14px 12px; transform: rotate(-3deg); border-radius: 2px; box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
+.sticker b { display: block; font: 900 1.8rem/1 var(--display); font-stretch: 110%; }
+.sticker span { font: 600 0.72rem/1.2 var(--body); letter-spacing: 0.1em; text-transform: uppercase; }
+.trust { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid #2c3a47; margin-top: 36px; }
+.trust div { padding: 18px 16px 22px 0; }
+.trust b { display: block; font: 800 1.5rem/1.1 var(--display); font-stretch: 110%; font-variant-numeric: tabular-nums; }
+.trust span { color: #9fabb6; font-size: 0.88rem; }
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .quick { grid-template-columns: 1fr 1fr; }
+  .quick .btn { grid-column: span 2; }
+  .trust { grid-template-columns: 1fr 1fr; }
+}
+
+section.block { padding-block: 72px; }
+.head-row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 32px; margin-bottom: 28px; }
+
+/* Inventory */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 0.9rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.filters select { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 7px 10px; font-size: 0.9rem; }
+.count { color: var(--muted); font-size: 0.9rem; margin: 0 0 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+@media (max-width: 400px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; text-align: left; padding: 0; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(21,32,43,0.12); }
+.card .pic { position: relative; background: linear-gradient(180deg, var(--bg) 0 70%, var(--line) 70% 100%); padding: 26px 18px 10px; }
+.card .pic svg { width: 100%; height: auto; display: block; }
+.card .price { position: absolute; top: 12px; right: 12px; background: var(--tag); color: var(--tag-ink); font: 800 1.05rem/1 var(--display); font-stretch: 110%; padding: 7px 10px; border-radius: 2px; transform: rotate(-2deg); font-variant-numeric: tabular-nums; }
+.card .badge { position: absolute; top: 12px; left: 12px; font: 600 0.7rem/1 var(--body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ok); }
+.card .info { padding: 16px 18px 18px; display: grid; gap: 10px; }
+.card h3 { font-size: 1.15rem; font-weight: 800; font-stretch: 110%; }
+.card .trim { color: var(--muted); font-size: 0.9rem; }
+.specs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border-top: 1px dashed var(--line); padding-top: 12px; font-size: 0.85rem; }
+.specs dt { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.specs dd { margin: 0; font-weight: 500; font-variant-numeric: tabular-nums; }
+.card .foot { display: flex; justify-content: space-between; align-items: center; color: var(--muted); }
+.card .foot .est { color: var(--ink); font-weight: 500; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.empty { padding: 40px; text-align: center; border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); }
+.note { color: var(--muted); font-size: 0.85rem; margin-top: 16px; }
+
+/* Why us */
+.why { background: var(--surface); border-block: 1px solid var(--line); }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; counter-reset: s; }
+.steps li { list-style: none; counter-increment: s; }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--ink); font: 800 0.95rem/1 var(--display); margin-bottom: 14px; }
+.steps h3 { font-size: 1.05rem; font-weight: 800; font-stretch: 110%; margin-bottom: 6px; }
+.steps p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.steps ol, ol.steps { padding: 0; margin: 0; }
+@media (max-width: 860px) { .steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .steps { grid-template-columns: 1fr; } }
+
+/* Finance + trade-in */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+@media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 28px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.panel h3 { font-size: 1.4rem; font-weight: 850; }
+.panel > p { margin: 0; color: var(--muted); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 0.85rem; font-weight: 500; display: flex; justify-content: space-between; gap: 8px; }
+.field label output { font-variant-numeric: tabular-nums; color: var(--blue); font-weight: 600; }
+.field input[type="text"], .field input[type="number"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field select {
+  border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+.field input[type="range"] { width: 100%; accent-color: var(--blue); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } }
+.result { background: var(--road); color: var(--road-ink); border-radius: 6px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; }
+.result b { font: 900 2.4rem/1 var(--display); font-stretch: 110%; color: var(--tag); font-variant-numeric: tabular-nums; }
+.result small { color: #9fabb6; display: block; font-size: 0.82rem; }
+.ok-msg { background: color-mix(in srgb, var(--ok) 14%, transparent); border: 1px solid var(--ok); color: var(--ink); border-radius: 4px; padding: 12px 14px; font-size: 0.92rem; }
+
+/* Visit */
+.visit-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 32px; }
+@media (max-width: 860px) { .visit-grid { grid-template-columns: 1fr; } }
+.hours { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.hours td { padding: 7px 0; border-bottom: 1px solid var(--line); }
+.hours td:last-child { text-align: right; }
+.hours tr.today td { font-weight: 600; color: var(--blue); }
+.copy-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.copy-row .mono { font-size: 1rem; user-select: all; }
+.small-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer; }
+
+footer { background: var(--road); color: #9fabb6; padding-block: 28px; font-size: 0.88rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; }
+
+/* Detail dialog */
+dialog { border: 0; padding: 0; border-radius: 8px; width: min(760px, calc(100vw - 32px)); max-height: calc(100vh - 48px); background: var(--surface); color: var(--ink); }
+dialog::backdrop { background: rgba(11,17,23,0.6); }
+.dlg-pic { background: linear-gradient(180deg, var(--bg) 0 72%, var(--line) 72% 100%); padding: 32px 40px 12px; position: relative; }
+.dlg-body { padding: 24px 28px 28px; display: grid; gap: 18px; }
+.dlg-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: start; }
+.dlg-top h3 { font-size: 1.6rem; font-weight: 850; }
+.big-price { font: 900 1.8rem/1 var(--display); font-stretch: 110%; background: var(--tag); color: var(--tag-ink); padding: 8px 12px; border-radius: 2px; font-variant-numeric: tabular-nums; }
+.feat { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.feat li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 0.85rem; }
+.x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 1.1rem; }
+.specs.wide { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 520px) { .specs.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dlg-pic { padding: 28px 16px 8px; } .dlg-body { padding: 20px 18px 22px; } }
+.dlg-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 20 L16 6 L29 20 L22 18 L16 26 L10 18 Z" fill="#f5c518"/></svg>
+      Kestrel Motors
+    </a>
+    <nav class="main" aria-label="Main">
+      <a href="#inventory">Inventory</a>
+      <a href="#how">How it works</a>
+      <a href="#finance">Financing</a>
+      <a href="#trade">Sell your car</a>
+      <a href="#visit">Visit</a>
+    </nav>
+    <span class="call">(555) 014-2290</span>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow" style="color: var(--tag)">Quality pre-owned cars</p>
+        <h1>Inspected. Priced fair. <em>Ready to drive.</em></h1>
+        <p class="lede">Every car on our lot passes a 150-point inspection and comes with a free vehicle history report. The price on the sticker is the price you pay, plus tax and registration.</p>
+        <form class="quick" id="quick">
+          <select id="q-body" aria-label="Body type">
+            <option value="all">Any body type</option>
+            <option value="Sedan">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Hatchback">Hatchback</option>
+            <option value="Pickup">Pickup</option>
+          </select>
+          <select id="q-make" aria-label="Make"><option value="all">Any make</option></select>
+          <select id="q-price" aria-label="Max price">
+            <option value="999999">Any price</option>
+            <option value="20000">Under $20,000</option>
+            <option value="25000">Under $25,000</option>
+            <option value="30000">Under $30,000</option>
+          </select>
+          <button class="btn" type="submit">Search</button>
+        </form>
+      </div>
+      <div class="hero-car" id="hero-car"></div>
+    </div>
+    <div class="trust">
+      <div><b>150-point</b><span>inspection on every car</span></div>
+      <div><b>7-day</b><span>money-back return</span></div>
+      <div><b>3-month</b><span>/ 3,000-mile warranty</span></div>
+      <div><b>4.8 / 5</b><span>from 640 customer reviews</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="inventory">
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <p class="eyebrow">On the lot today</p>
+        <h2>Browse our inventory</h2>
+      </div>
+      <div class="filters" role="group" aria-label="Filter inventory">
+        <button class="chip" type="button" data-body="all" aria-pressed="true">All</button>
+        <button class="chip" type="button" data-body="Sedan" aria-pressed="false">Sedans</button>
+        <button class="chip" type="button" data-body="SUV" aria-pressed="false">SUVs</button>
+        <button class="chip" type="button" data-body="Hatchback" aria-pressed="false">Hatchbacks</button>
+        <button class="chip" type="button" data-body="Pickup" aria-pressed="false">Pickups</button>
+        <select id="sort" aria-label="Sort by">
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+          <option value="miles-asc">Lowest mileage</option>
+          <option value="year-desc">Newest first</option>
+        </select>
+      </div>
+    </div>
+    <p class="count" id="count"></p>
+    <div class="grid" id="grid"></div>
+    <p class="note">Sample listings. Estimated payments assume 10% down, 6.9% APR for 60 months, and are for illustration only.</p>
+  </div>
+</section>
+
+<section class="block why" id="how">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2 style="margin-bottom: 36px">From browsing to driving home</h2>
+    <ol class="steps">
+      <li><h3>Pick a car</h3><p>Browse online or walk the lot. Every listing shows the full price, mileage and history report.</p></li>
+      <li><h3>Take a test drive</h3><p>Book a time that suits you. We'll have the car washed, fueled and waiting.</p></li>
+      <li><h3>Sort out payment</h3><p>Pay cash, use your own bank, or let us shop rates with our lending partners.</p></li>
+      <li><h3>Drive it home</h3><p>Paperwork takes about an hour. You get 7 days to change your mind.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="block" id="finance">
+  <div class="wrap two">
+    <div class="panel">
+      <div>
+        <p class="eyebrow">Financing</p>
+        <h3>Estimate your monthly payment</h3>
+      </div>
+      <p>Move the sliders to see what fits your budget. Checking your rate with us does not affect your credit score.</p>
+      <div class="field">
+        <label for="f-price">Vehicle price <output id="o-price"></output></label>
+        <input type="range" id="f-price" min="5000" max="60000" step="100" value="24500">
+      </div>
+      <div class="field">
+        <label for="f-down">Down payment <output id="o-down"></output></label>
+        <input type="range" id="f-down" min="0" max="20000" step="100" value="3000">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="f-apr">Interest rate (APR %)</label>
+          <input type="number" id="f-apr" min="0" max="30" step="0.1" value="6.9">
+        </div>
+        <div class="field">
+          <label for="f-term">Loan term</label>
+          <select id="f-term">
+            <option value="36">36 months</option>
+            <option value="48">48 months</option>
+            <option value="60" selected>60 months</option>
+            <option value="72">72 months</option>
+          </select>
+        </div>
+      </div>
+      <div class="result">
+        <div><small>Estimated monthly payment</small><b id="o-monthly">$0</b></div>
+        <div style="text-align:right"><small id="o-financed"></small><small id="o-interest"></small></div>
+      </div>
+    </div>
+
+    <div class="panel" id="trade">
+      <div>
+        <p class="eyebrow">Sell or trade in</p>
+        <h3>Get an offer on your car</h3>
+      </div>
+      <p>Tell us about your car and we'll send a written offer within one business day. It's good for 7 days, whether you buy from us or not.</p>
+      <form id="trade-form" class="panel" style="padding:0;border:0;gap:14px">
+        <div class="row2">
+          <div class="field"><label for="t-year">Year</label><input type="number" id="t-year" min="1990" max="2027" placeholder="2017" required></div>
+          <div class="field"><label for="t-miles">Mileage</label><input type="number" id="t-miles" min="0" placeholder="62000" required></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="t-make">Make</label><input type="text" id="t-make" placeholder="Honda" required></div>
+          <div class="field"><label for="t-model">Model</label><input type="text" id="t-model" placeholder="Accord" required></div>
+        </div>
+        <div class="field">
+          <label for="t-cond">Condition</label>
+          <select id="t-cond">
+            <option>Excellent: no damage, full service records</option>
+            <option selected>Good: minor wear, runs well</option>
+            <option>Fair: needs some repairs</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="t-name">Your name</label><input type="text" id="t-name" required></div>
+          <div class="field"><label for="t-phone">Phone or email</label><input type="text" id="t-phone" required></div>
+        </div>
+        <button class="btn" type="submit">Request my offer</button>
+        <div class="ok-msg" id="trade-ok" hidden></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="block why" id="visit">
+  <div class="wrap">
+    <p class="eyebrow">Visit the lot</p>
+    <h2 style="margin-bottom: 32px">Come take a look</h2>
+    <div class="visit-grid">
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:8px">Address</h3>
+        <p style="margin:0 0 16px">1480 Harbor Road<br>Springfield, ST 00000</p>
+        <a class="btn ghost" href="https://www.openstreetmap.org/" target="_blank" rel="noopener">Get directions</a>
+      </div>
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:8px">Contact</h3>
+        <div class="copy-row" style="margin-bottom:10px"><span class="mono" id="phone">(555) 014-2290</span><button class="small-btn" type="button" data-copy="phone">Copy</button></div>
+        <div class="copy-row"><span class="mono" id="email">sales@kestrelmotors.example</span><button class="small-btn" type="button" data-copy="email">Copy</button></div>
+      </div>
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:8px">Opening hours</h3>
+        <table class="hours" id="hours">
+          <tr data-d="1"><td>Monday</td><td>9:00 – 19:00</td></tr>
+          <tr data-d="2"><td>Tuesday</td><td>9:00 – 19:00</td></tr>
+          <tr data-d="3"><td>Wednesday</td><td>9:00 – 19:00</td></tr>
+          <tr data-d="4"><td>Thursday</td><td>9:00 – 19:00</td></tr>
+          <tr data-d="5"><td>Friday</td><td>9:00 – 20:00</td></tr>
+          <tr data-d="6"><td>Saturday</td><td>10:00 – 18:00</td></tr>
+          <tr data-d="0"><td>Sunday</td><td>Closed</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Kestrel Motors. All prices exclude tax, title and registration.</span>
+    <span>Dealer licence no. 00-000000</span>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlg-title"></dialog>
+
+<script>
+const CARS = [
+  { id: "K1042", year: 2021, make: "Toyota", model: "Corolla", trim: "LE", body: "Sedan", price: 18900, miles: 34210, fuel: "Gasoline", trans: "Automatic", mpg: "31 / 40", color: "#9aa3ab", colorName: "Classic Silver", owners: 1, feats: ["Apple CarPlay", "Adaptive cruise", "Lane keep assist", "Backup camera"] },
+  { id: "K1057", year: 2020, make: "Honda", model: "CR-V", trim: "EX AWD", body: "SUV", price: 24500, miles: 41880, fuel: "Gasoline", trans: "CVT", mpg: "27 / 32", color: "#7a1f2b", colorName: "Basque Red", owners: 1, feats: ["All-wheel drive", "Sunroof", "Heated seats", "Blind-spot monitor"] },
+  { id: "K1063", year: 2019, make: "Ford", model: "F-150", trim: "XLT SuperCrew", body: "Pickup", price: 31200, miles: 58400, fuel: "Gasoline", trans: "Automatic", mpg: "20 / 26", color: "#1f3a5f", colorName: "Blue Jeans", owners: 2, feats: ["4x4", "Tow package", "Bed liner", "Remote start"] },
+  { id: "K1071", year: 2018, make: "Volkswagen", model: "Golf", trim: "SE", body: "Hatchback", price: 15400, miles: 49020, fuel: "Gasoline", trans: "Manual", mpg: "29 / 37", color: "#e4e6e3", colorName: "Pure White", owners: 1, feats: ["6-speed manual", "Panoramic roof", "Heated seats", "Android Auto"] },
+  { id: "K1078", year: 2021, make: "Tesla", model: "Model 3", trim: "Long Range", body: "Sedan", price: 29800, miles: 27500, fuel: "Electric", trans: "Single-speed", mpg: "353 mi range", color: "#22262b", colorName: "Solid Black", owners: 1, feats: ["Autopilot", "Glass roof", "Premium audio", "Heated seats"] },
+  { id: "K1084", year: 2022, make: "Mazda", model: "CX-5", trim: "Touring", body: "SUV", price: 27300, miles: 18640, fuel: "Gasoline", trans: "Automatic", mpg: "25 / 31", color: "#5d6b78", colorName: "Polymetal Gray", owners: 1, feats: ["AWD", "Leather seats", "Power liftgate", "Radar cruise"] },
+  { id: "K1090", year: 2022, make: "Hyundai", model: "Elantra", trim: "SEL", body: "Sedan", price: 19600, miles: 22100, fuel: "Gasoline", trans: "Automatic", mpg: "33 / 42", color: "#2b6cb0", colorName: "Intense Blue", owners: 1, feats: ["Wireless CarPlay", "Digital key", "Forward collision assist", "Remaining factory warranty"] },
+  { id: "K1096", year: 2021, make: "Toyota", model: "RAV4 Hybrid", trim: "XLE", body: "SUV", price: 30900, miles: 31770, fuel: "Hybrid", trans: "CVT", mpg: "41 / 38", color: "#4a5a3c", colorName: "Army Green", owners: 1, feats: ["AWD", "Hybrid drivetrain", "Moonroof", "Blind-spot monitor"] },
+  { id: "K1102", year: 2019, make: "Honda", model: "Civic", trim: "Sport", body: "Hatchback", price: 17250, miles: 45300, fuel: "Gasoline", trans: "CVT", mpg: "30 / 36", color: "#c0392b", colorName: "Rallye Red", owners: 2, feats: ["Sport mode", "18-inch wheels", "Push-button start", "Backup camera"] }
+];
+
+const usd = n => "$" + Math.round(n).toLocaleString("en-US");
+const num = n => n.toLocaleString("en-US");
+
+// Simple side-profile silhouettes, front of car faces right.
+const SHAPES = {
+  Sedan: { body: "M20 92 L20 74 Q22 63 40 61 L96 56 L130 35 Q138 30 150 30 L205 30 Q218 30 228 40 L250 57 L285 63 Q300 67 300 80 L300 92 Z",
+           win: ["M106 56 L136 38 L170 38 L170 56 Z", "M178 38 L206 38 Q214 38 220 44 L234 56 L178 56 Z"] },
+  SUV: { body: "M18 92 L18 62 Q20 54 34 52 L70 50 L90 24 Q94 20 104 20 L232 20 Q244 20 250 30 L268 52 L290 56 Q302 60 302 74 L302 92 Z",
+         win: ["M80 50 L98 28 L158 28 L158 50 Z", "M166 28 L232 28 Q238 28 242 34 L254 50 L166 50 Z"] },
+  Hatchback: { body: "M28 92 L28 66 Q28 58 36 54 L60 30 Q66 26 76 26 L196 26 Q208 26 218 36 L242 58 L282 63 Q296 67 296 80 L296 92 Z",
+               win: ["M66 50 L82 33 L146 33 L146 52 Z", "M154 33 L196 33 Q204 33 210 39 L228 54 L154 54 Z"] },
+  Pickup: { body: "M14 92 L14 56 L148 56 L154 26 Q156 20 166 20 L222 20 Q232 20 238 30 L256 54 L290 58 Q304 62 304 76 L304 92 Z",
+            win: ["M162 28 L218 28 Q224 28 228 34 L242 52 L162 52 Z"] }
+};
+function carSVG(body, color, title) {
+  const s = SHAPES[body];
+  const wheel = x => `<circle cx="${x}" cy="92" r="19" fill="#1a1f24"/><circle cx="${x}" cy="92" r="8" fill="#a9b1b8"/>`;
+  return `<svg class="car" viewBox="0 0 320 120" role="img" aria-label="${title}">
+    <ellipse cx="160" cy="111" rx="140" ry="6" fill="#000" opacity="0.18"/>
+    <path d="${s.body}" fill="${color}" stroke="rgba(0,0,0,0.25)" stroke-width="1.5"/>
+    ${s.win.map(w => `<path d="${w}" fill="#2a3a48" opacity="0.85"/>`).join("")}
+    <rect x="${body === "Pickup" ? 290 : 286}" y="66" width="12" height="6" rx="2" fill="#f7e7a6"/>
+    <rect x="${body === "Pickup" ? 14 : 20}" y="66" width="8" height="6" rx="2" fill="#c0392b"/>
+    ${wheel(body === "Pickup" ? 70 : 78)}${wheel(242)}
+  </svg>`;
+}
+function monthly(principal, apr, months) {
+  if (principal <= 0) return 0;
+  const r = apr / 100 / 12;
+  if (r === 0) return principal / months;
+  return principal * r / (1 - Math.pow(1 + r, -months));
+}
+const est = p => monthly(p * 0.9, 6.9, 60);
+
+// Hero
+const heroCar = CARS[7];
+document.getElementById("hero-car").innerHTML =
+  carSVG(heroCar.body, heroCar.color, `${heroCar.year} ${heroCar.make} ${heroCar.model}`) +
+  `<div class="lane"></div><div class="sticker"><span>${heroCar.year} ${heroCar.make} ${heroCar.model}</span><b>${usd(heroCar.price)}</b></div>`;
+
+// Quick search makes
+const makes = [...new Set(CARS.map(c => c.make))].sort();
+document.getElementById("q-make").insertAdjacentHTML("beforeend", makes.map(m => `<option>${m}</option>`).join(""));
+
+// Inventory
+const state = { body: "all", make: "all", max: 999999, sort: "price-asc" };
+const grid = document.getElementById("grid");
+function render() {
+  let list = CARS.filter(c => (state.body === "all" || c.body === state.body) && (state.make === "all" || c.make === state.make) && c.price <= state.max);
+  const [k, dir] = state.sort.split("-");
+  const key = { price: "price", miles: "miles", year: "year" }[k];
+  list.sort((a, b) => dir === "asc" ? a[key] - b[key] : b[key] - a[key]);
+  const filtered = state.make !== "all" || state.max < 999999;
+  document.getElementById("count").innerHTML = `${list.length} ${list.length === 1 ? "car" : "cars"} available` +
+    (filtered ? ` · <button class="small-btn" type="button" id="clear">Clear search</button>` : "");
+  grid.innerHTML = list.length ? list.map(c => `
+    <button class="card" type="button" data-id="${c.id}">
+      <div class="pic">
+        ${c.owners === 1 ? `<span class="badge">One owner</span>` : ""}
+        <span class="price">${usd(c.price)}</span>
+        ${carSVG(c.body, c.color, `${c.year} ${c.make} ${c.model}`)}
+      </div>
+      <div class="info">
+        <div><h3>${c.year} ${c.make} ${c.model}</h3><span class="trim">${c.trim} · ${c.colorName}</span></div>
+        <dl class="specs">
+          <div><dt>Mileage</dt><dd>${num(c.miles)} mi</dd></div>
+          <div><dt>Fuel</dt><dd>${c.fuel}</dd></div>
+          <div><dt>Gearbox</dt><dd>${c.trans}</dd></div>
+        </dl>
+        <div class="foot"><span class="mono">Stock #${c.id}</span><span class="est">≈ ${usd(est(c.price))}/mo</span></div>
+      </div>
+    </button>`).join("") : `<div class="empty">No cars match that search right now. Try a different body type or price, or call us and we'll find one for you.</div>`;
+  const clr = document.getElementById("clear");
+  if (clr) clr.onclick = () => { state.make = "all"; state.max = 999999; document.getElementById("q-make").value = "all"; document.getElementById("q-price").value = "999999"; render(); };
+}
+function setBody(b) {
+  state.body = b;
+  document.querySelectorAll(".chip").forEach(ch => ch.setAttribute("aria-pressed", String(ch.dataset.body === b)));
+}
+document.querySelectorAll(".chip").forEach(ch => ch.addEventListener("click", () => { setBody(ch.dataset.body); render(); }));
+document.getElementById("sort").addEventListener("change", e => { state.sort = e.target.value; render(); });
+document.getElementById("quick").addEventListener("submit", e => {
+  e.preventDefault();
+  setBody(document.getElementById("q-body").value);
+  state.make = document.getElementById("q-make").value;
+  state.max = +document.getElementById("q-price").value;
+  render();
+  document.getElementById("inventory").scrollIntoView();
+});
+render();
+
+// Detail dialog
+const dlg = document.getElementById("dlg");
+grid.addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  const c = CARS.find(x => x.id === card.dataset.id);
+  dlg.innerHTML = `
+    <div class="dlg-pic">${carSVG(c.body, c.color, `${c.year} ${c.make} ${c.model}`)}
+      <button class="x" type="button" aria-label="Close">✕</button></div>
+    <div class="dlg-body">
+      <div class="dlg-top">
+        <div><h3 id="dlg-title">${c.year} ${c.make} ${c.model}</h3><span class="trim" style="color:var(--muted)">${c.trim} · ${c.colorName} · <span class="mono">Stock #${c.id}</span></span></div>
+        <span class="big-price">${usd(c.price)}</span>
+      </div>
+      <dl class="specs wide">
+        <div><dt>Mileage</dt><dd>${num(c.miles)} mi</dd></div>
+        <div><dt>Fuel</dt><dd>${c.fuel}</dd></div>
+        <div><dt>Gearbox</dt><dd>${c.trans}</dd></div>
+        <div><dt>${c.fuel === "Electric" ? "Range" : "MPG city / hwy"}</dt><dd>${c.mpg}</dd></div>
+        <div><dt>Body</dt><dd>${c.body}</dd></div>
+        <div><dt>Owners</dt><dd>${c.owners}</dd></div>
+        <div><dt>Inspection</dt><dd>150 / 150 passed</dd></div>
+        <div><dt>Est. payment</dt><dd>${usd(est(c.price))}/mo</dd></div>
+      </dl>
+      <ul class="feat">${c.feats.map(f => `<li>${f}</li>`).join("")}</ul>
+      <form id="td" style="display:grid;gap:12px">
+        <strong>Book a test drive</strong>
+        <div class="row2">
+          <div class="field"><label for="td-name">Name</label><input type="text" id="td-name" required></div>
+          <div class="field"><label for="td-date">Preferred day</label><input type="date" id="td-date" required></div>
+        </div>
+        <div class="field"><label for="td-contact">Phone or email</label><input type="text" id="td-contact" required></div>
+        <div class="dlg-actions">
+          <button class="btn" type="submit">Request test drive</button>
+          <button class="btn ghost" type="button" id="td-fin">Use in payment calculator</button>
+        </div>
+        <div class="ok-msg" id="td-ok" hidden></div>
+      </form>
+    </div>`;
+  dlg.querySelector(".x").onclick = () => dlg.close();
+  dlg.querySelector("#td-date").min = new Date().toISOString().slice(0, 10);
+  dlg.querySelector("#td").addEventListener("submit", ev => {
+    ev.preventDefault();
+    const ok = dlg.querySelector("#td-ok");
+    ok.textContent = `Thanks, ${dlg.querySelector("#td-name").value}. Your request for the ${c.year} ${c.model} on ${dlg.querySelector("#td-date").value} is noted. (Demo site: requests aren't sent anywhere yet.)`;
+    ok.hidden = false;
+  });
+  dlg.querySelector("#td-fin").onclick = () => {
+    document.getElementById("f-price").value = c.price;
+    calc(); dlg.close();
+    document.getElementById("finance").scrollIntoView();
+  };
+  dlg.showModal();
+});
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+
+// Finance calculator
+const fp = document.getElementById("f-price"), fd = document.getElementById("f-down"),
+      fa = document.getElementById("f-apr"), ft = document.getElementById("f-term");
+function calc() {
+  const price = +fp.value, down = Math.min(+fd.value, price), apr = Math.max(0, +fa.value || 0), n = +ft.value;
+  const principal = price - down, m = monthly(principal, apr, n);
+  document.getElementById("o-price").textContent = usd(price);
+  document.getElementById("o-down").textContent = usd(down);
+  document.getElementById("o-monthly").textContent = usd(m);
+  document.getElementById("o-financed").textContent = `Amount financed ${usd(principal)}`;
+  document.getElementById("o-interest").textContent = `Total interest ${usd(m * n - principal)}`;
+}
+[fp, fd, fa, ft].forEach(el => el.addEventListener("input", calc));
+calc();
+
+// Trade-in
+document.getElementById("trade-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const ok = document.getElementById("trade-ok");
+  ok.textContent = `Thanks, ${document.getElementById("t-name").value}. We have the details for your ${document.getElementById("t-year").value} ${document.getElementById("t-make").value} ${document.getElementById("t-model").value}. (Demo site: the form isn't connected to an inbox yet.)`;
+  ok.hidden = false;
+});
+
+// Hours: highlight today
+const today = new Date().getDay();
+document.querySelector(`#hours tr[data-d="${today}"]`)?.classList.add("today");
+
+// Copy buttons
+document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", () => {
+  const el = document.getElementById(b.dataset.copy);
+  const done = () => { b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1500); };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected"; };
+  try { navigator.clipboard.writeText(el.textContent).then(done, fallback); } catch { fallback(); }
+}));
+</script>
+</body>
+</html>
